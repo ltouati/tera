@@ -37,7 +37,8 @@ chrono = {version = "0.4.27", optional = true, default-features = false, feature
 chrono-tz = {version = "0.8", optional = true}
 # used in get_random function
 rand = {version = "0.8", optional = true}
-
+async-trait = "0.1.80"
+futures = "0.3.30"
 [dev-dependencies]
 serde_derive = "1.0"
 pretty_assertions = "1"

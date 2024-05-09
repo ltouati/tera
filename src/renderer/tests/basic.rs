@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use std::collections::{BTreeMap, HashMap};
 use std::error::Error;
 use std::sync::atomic::{AtomicUsize, Ordering};
@@ -871,8 +872,9 @@ fn can_use_concat_to_push_to_array() {
 
 struct Next(AtomicUsize);
 
+#[async_trait]
 impl Function for Next {
-    fn call(&self, _args: &HashMap<String, Value>) -> Result<Value> {
+    async fn call(&self, _args: &HashMap<String, Value>) -> Result<Value> {
         Ok(Value::Number(self.0.fetch_add(1, Ordering::Relaxed).into()))
     }
 }
@@ -880,9 +882,10 @@ impl Function for Next {
 #[derive(Clone)]
 struct SharedNext(Arc<Next>);
 
+#[async_trait]
 impl Function for SharedNext {
-    fn call(&self, args: &HashMap<String, Value>) -> Result<Value> {
-        self.0.call(args)
+    async fn call(&self, args: &HashMap<String, Value>) -> Result<Value> {
+        self.0.call(args).await
     }
 }
 
@@ -960,8 +963,9 @@ fn safe_filter_works() {
 #[test]
 fn safe_function_works() {
     struct Safe;
+    #[async_trait]
     impl crate::Function for Safe {
-        fn call(&self, _args: &HashMap<String, Value>) -> Result<Value> {
+        async fn call(&self, _args: &HashMap<String, Value>) -> Result<Value> {
             Ok(Value::String("<div>Hello</div>".to_owned()))
         }
 

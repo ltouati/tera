@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use std::collections::HashMap;
 
 #[cfg(feature = "builtins")]
@@ -9,9 +10,10 @@ use serde_json::value::{from_value, to_value, Value};
 use crate::errors::{Error, Result};
 
 /// The global function type definition
+#[async_trait]
 pub trait Function: Sync + Send {
     /// The global function type definition
-    fn call(&self, args: &HashMap<String, Value>) -> Result<Value>;
+    async fn call(&self, args: &HashMap<String, Value>) -> Result<Value>;
 
     /// Whether the current function's output should be treated as safe, defaults to `false`
     fn is_safe(&self) -> bool {
@@ -19,11 +21,12 @@ pub trait Function: Sync + Send {
     }
 }
 
+#[async_trait]
 impl<F> Function for F
 where
     F: Fn(&HashMap<String, Value>) -> Result<Value> + Sync + Send,
 {
-    fn call(&self, args: &HashMap<String, Value>) -> Result<Value> {
+    async fn call(&self, args: &HashMap<String, Value>) -> Result<Value> {
         self(args)
     }
 }
